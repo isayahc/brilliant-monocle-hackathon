@@ -1,4 +1,4 @@
-# LLM game master
+# LLM game master ♟
 
 # Why
 
