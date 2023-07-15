@@ -1,6 +1,10 @@
 import openai
+from dotenv import load_dotenv
+import os
 
-openai.api_key = 'your-api-key'
+load_dotenv()
+
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 response = openai.Completion.create(
   engine="text-davinci-004",
