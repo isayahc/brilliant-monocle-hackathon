@@ -1,103 +1,62 @@
 import touch
 import display
-import time
 import microphone
 import bluetooth
-# import whisper
 
 def change_text(button):
-    new_text = display.Text(f"Button {button} touched! adding on", 0, 0, display.WHITE)
+    new_text = display.Text(f"Button {button} touched! Hello", 0, 0, display.WHITE)
+    print("recording now")
     display.show(new_text)
 
-def record_voice():
-    # button a is start record 
-    # button b is end record
-    # touch.A
-    
-    a1 = time.ticks_ms()
-    a2 = time.ticks_ms()
-    a3 = time.ticks_diff(a1,a2)
-
-    return microphone.read(8000*(a3//1000))
-
-
-def touch_callback(pad):
-    if pad == touch.A:
-        microphone.record(seconds=5.0,sample_rate=8000,bit_depth=8)
-
-def sample():
-    # microphone.record(seconds=10.0,sample_rate=16000,bit_depth=16)
-    microphone.record(seconds=10.0,sample_rate=8000,bit_depth=8)
-
-    data = b''
-    while microphone.read(127):
-        data += microphone.read(127)
-    return data
-
-def sample():
-    # microphone.record(seconds=10.0,sample_rate=16000,bit_depth=16)
-    microphone.record(seconds=10.0,sample_rate=8000,bit_depth=8)
-
-    data = b''
-    while microphone.read(127):
-        data += microphone.read(127)
-    return data
-
-def bluetooth_sample(data):
-    import bluetooth
-    bluetooth.send(data)
-
-
-def save_byte_to_data(data,output='output.mp3'):
-    with open(output, 'wb') as f:
-        f.write(data)
-
-
-def bluetooth_send_message(message):
-    while True:
-        try:
-            bluetooth.send(message)
-            break
-        except OSError:
-            pass
-
-
-
-# 
-
-
-# def speech_to_text(model_type="base",input_data="output.mp3") -> str:
-#     model = whisper.load_model(model_type)
-#     result = model.transcribe(input_data)
-#     return (result["text"])
-        
-
-    
-
-
-
-# microphone.record(seconds=5.0,sample_rate=16000,bit_depth=16)
+# def record_voice(butt)
 
 # touch.callback(touch.BOTH, change_text)
 
-# initial_text = display.Text("Tap a touch button", 0, 0, display.WHITE)
+# initial_text = display.Text("Tap a touch button Hello", 0, 0, display.WHITE)
 # display.show(initial_text)
 
-print("record data")
-data = record_voice()
-# print("saving data")
-# save_byte_to_data(data)
-
-if __name__ == '__main__':
-    # if touch.A:
-    #         a1 = time.ticks_ms()
-    #         while not touch.B:
-    #             continue
-    #             if:
-    #                 a2 = time.ticks_ms()
-    #                 a3 = time.ticks_diff(a1,a2)
-    x = sample()
-    print(x)
 
 
-    # return microphone.read(8000*(a3//1000))
+if touch.callback(touch.A, callback):
+    microphone.record(seconds=10.0,sample_rate=16000,bit_depth=16)
+
+
+new_text = display.Text("tap a to begin recording", 0, 0, display.WHITE)
+display.show(new_text)
+
+
+if touch.A:
+    print("recording now")
+    display.show("recording now")
+    data = microphone.record(seconds=5.0,sample_rate=16000,bit_depth=16)
+    print(data)
+    if touch.B:
+        display.show("reading now")
+        while microphone.read(127):
+            print("recording now")
+
+            print(microphone.read(127))
+
+
+if touch.A == True:
+    print("recording now")
+    display.show("recording now")
+    data = microphone.record(seconds=5.0,sample_rate=16000,bit_depth=16)
+    print(data)
+    if touch.B:
+        display.show("reading now")
+        while microphone.read(127):
+            print("recording now")
+
+            print(microphone.read(127))
+
+
+while True:
+
+    data = microphone.record(seconds=5.0,sample_rate=16000,bit_depth=16)
+    # print(data)bluetooth.send(bytes)
+
+
+microphone.record(seconds=5.0,sample_rate=16000,bit_depth=16)
+
+bluetooth.send(microphone.read(127))

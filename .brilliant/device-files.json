@@ -1,6 +1,3 @@
 {
-	"/main.py": "main.py",
-	"/audio_utils.py": "audio_utils.py",
-	"/graphics.py": "graphics.py",
-	"/states.py": "states.py"
+	"/main.py": "main.py"
 }
