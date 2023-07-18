@@ -8,6 +8,7 @@ from bleak.uuids import register_uuids
 import sys
 import whisper
 import openai
+import os
 
 
 UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
@@ -27,7 +28,7 @@ AUDIO_OUTPUT_PATH = "/tmp/audio.wav"
 async def get_device():
     def match_repl_uuid(_: BLEDevice, adv: AdvertisementData):
         print(f"uuids={adv.service_uuids}", file=sys.stderr)
-        print(_.address if _.address == "CD:D3:CD:60:0F:63" else "")
+        # print(_.address if _.address == "CD:D3:CD:60:0F:63" else "")
         return UART_SERVICE_UUID.lower() in adv.service_uuids
 
     return await BleakScanner.find_device_by_filter(match_repl_uuid)
@@ -71,9 +72,11 @@ class MonocleAudioServer:
         self.audio_buffer = bytearray(WAV_HEADER)
         self.client: None | BleakClient = None
 
+        # self._connect()
+
     async def __aenter__(self):
         device = await get_device()
-        self._connect(device)
+        await self._connect(device)
         return self
 
     async def __aexit__(self, *args: Any):
@@ -106,6 +109,9 @@ class MonocleAudioServer:
         # this client code on the device and have it poll for a connected
         # bluetooth session - but hackathon constraints, we'll just deploy
         # the payload from this server using the repl channel.
+        # await self._connect()
+
+
         await self.client.start_notify(UART_TX_CHAR_UUID, self.handle_repl_tx)
         await self.client.start_notify(DATA_TX_CHAR_UUID, self.handle_data_tx)
         repl = self.client.services.get_service(UART_SERVICE_UUID)
@@ -152,7 +158,15 @@ class MonocleAudioServer:
 
     def process_audio(self):
         # Rewrite data length in the wav header with the correct length.
-        self.audio_buffer[40:43] = (len(self.audio_buffer) - 44).to_bytes(4)
+        self.audio_buffer[40:43] = (len(self.audio_buffer) - 44).to_bytes(4,'little')
+
+        dir_path = os.path.dirname(AUDIO_OUTPUT_PATH)
+
+        # Check if the directory exists
+        if not os.path.exists(dir_path):
+            # If the directory doesn't exist, create it
+            os.makedirs(dir_path)
+
         with open(AUDIO_OUTPUT_PATH, "wb") as f:
             f.write(self.audio_buffer)
         transcript = transcribe(AUDIO_OUTPUT_PATH)
@@ -162,12 +176,27 @@ class MonocleAudioServer:
         print(f"TRANSLATION: {translation}")
 
 
+# async def main():
+#     device = await get_device()
+#     async with MonocleAudioServer() as audio_server:
+
+#         await audio_server._connect(device)
+#         await audio_server.send_payload()
+#         audio_server.process_audio()
+
 async def main():
     async with MonocleAudioServer() as audio_server:
         await audio_server.send_payload()
         audio_server.process_audio()
 
-
 if __name__ == "__main__":
-    # asyncio.run(main())
-    asyncio.run(get_device())
+    device = asyncio.run(get_device())
+
+    # asyncio.run(get_device())
+    asyncio.run(main())
+    # async with MonocleAudioServer() as audio_server:
+
+    
+    # await audio_server.send_payload()
+    # audio_server.process_audio()
+    # asyncio.run(get_device())
