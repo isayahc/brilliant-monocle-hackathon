@@ -23,6 +23,7 @@ WAV_HEADER = (b"\x52\x49\x46\x46\x18\x4d\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20
               b"\x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x40\x1f\x00\x00"
               b"\x01\x00\x08\x00\x64\x61\x74\x61\x00\x00\x00\x00")
 AUDIO_OUTPUT_PATH = "/tmp/audio.wav"
+AUDIO_OUTPUT_PATH = "/sample/audio.wav"
 
 
 async def get_device():
@@ -137,8 +138,17 @@ class MonocleAudioServer:
         # hackathon, but this can be extended to using the touch buttons on the
         # device or to continually record and stream the audio bytes to the
         # server.
-        await self.send_cmd("print('start recording')\nmicrophone.record(seconds=5.0, sample_rate=8000, bit_depth=8)", repl_rx_char, 5)
-        await self.send_cmd("print('stop recording')", repl_rx_char)
+
+        await self.send_cmd("initial_text = display.Text('wassup!', 0, 0, display.WHITE)", repl_rx_char)
+        await self.send_cmd("display.show(initial_text);", repl_rx_char)
+
+        await self.send_cmd("initial_text = display.Text('start recording', 0, 0, display.WHITE)", repl_rx_char)
+        await self.send_cmd("display.show(initial_text);", repl_rx_char)
+        await self.send_cmd("microphone.record(seconds=5.0, sample_rate=8000, bit_depth=8)", repl_rx_char, 5)
+        # await self.send_cmd("print('start recording')\nmicrophone.record(seconds=5.0, sample_rate=8000, bit_depth=8)", repl_rx_char, 5)
+        # await self.send_cmd("microphone.record(seconds=5.0, sample_rate=8000, bit_depth=8)", repl_rx_char, 5)
+        await self.send_cmd("initial_text = display.Text('stop recording', 0, 0, display.WHITE)", repl_rx_char)
+        await self.send_cmd("display.show(initial_text);", repl_rx_char)
         # This code to send the audio bytes over the data channel is extremely
         # hacky. There are probably issues with the FPGA buffer being overflown
         # depending on which record/wait times are used. One potential fix for
