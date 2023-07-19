@@ -206,16 +206,17 @@ while True:
 
 
 
-async def main():
+async def main(model_size:str="medium"):
     async with MonocleAudioServer() as audio_server:
         data = ""
         while data != "end game":
             await audio_server.send_payload()
             audio_server.write_audio()
-            data = transcribe(AUDIO_OUTPUT_PATH,"medium")
+            data = transcribe(AUDIO_OUTPUT_PATH,model_size)
             print(data)
 
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    model_size = "medium"
+    asyncio.run(main(model_size=model_size))
