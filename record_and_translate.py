@@ -26,6 +26,8 @@ WAV_HEADER = (b"\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20
 AUDIO_OUTPUT_PATH = "/tmp/audio.wav"
 
 
+
+
 async def get_device():
     def match_repl_uuid(_: BLEDevice, adv: AdvertisementData):
         print(f"uuids={adv.service_uuids}", file=sys.stderr)
@@ -101,6 +103,24 @@ class MonocleAudioServer:
         # realistically may be set to something much shorter than 1s.
         await self.client.write_gatt_char(channel, f"{cmd}\x04".encode())
         await asyncio.sleep(delay)
+
+    async def prepare_device_for_payload(self):
+        # A better way of doing this would probably be to separately deploy
+        # this client code on the device and have it poll for a connected
+        # bluetooth session - but hackathon constraints, we'll just deploy
+        # the payload from this server using the repl channel.
+        await self.client.start_notify(UART_TX_CHAR_UUID, self.handle_repl_tx)
+        await self.client.start_notify(DATA_TX_CHAR_UUID, self.handle_data_tx)
+        
+        repl = self.client.services.get_service(UART_SERVICE_UUID)
+        repl_rx_char = repl.get_characteristic(UART_RX_CHAR_UUID)
+
+
+        # This sleep is needed here to wait for resources to be available,
+        # but in theory there should be some way to be notified when the
+        # device is ready.
+        await asyncio.sleep(5)
+        await self.client.write_gatt_char(repl_rx_char, b"\x03\x01")
 
     async def send_payload(self):
         # A better way of doing this would probably be to separately deploy
@@ -192,11 +212,9 @@ async def main():
         while data != "end game":
             await audio_server.send_payload()
             audio_server.write_audio()
-            data = audio_server.transcribe_audio()
             data = transcribe(AUDIO_OUTPUT_PATH,"medium")
             print(data)
 
-        
 
 
 if __name__ == "__main__":
