@@ -18,18 +18,11 @@ DATA_SERVICE_UUID = "e5700001-7bac-429a-b4ce-57ff900f479d"
 DATA_RX_CHAR_UUID = "e5700002-7bac-429a-b4ce-57ff900f479d"
 DATA_TX_CHAR_UUID = "e5700003-7bac-429a-b4ce-57ff900f479d"
 
-#WAV_HEADER = (b"\x52\x49\x46\x46\x18\x4d\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20"
-# WAV_HEADER = (b"\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20"
-#              # b"\x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x40\x1f\x00\x00"
-#              b"\x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x80\x3e\x00\x00"
-#              b"\x02\x00\x10\x00\x64\x61\x74\x61\x00\x00\x00\x00")
-# WAV_HEADER = (
-#    b"\x52\x49\x46\x46\x70\xcb\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20\x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x80\x3e\x00\x00\x02\x00\x10\x00\x64\x61\x74\x61\x4c\xcb\x00\x00")
-              #b"\x01\x00\x08\x00\x64\x61\x74\x61\x00\x00\x00\x00")
+
 WAV_HEADER = (b"\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20"
               b"\x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x40\x1f\x00\x00"
               b"\x01\x00\x08\x00\x64\x61\x74\x61\x00\x00\x00\x00")
-# WAV_HEADER = b""
+
 AUDIO_OUTPUT_PATH = "/tmp/audio.wav"
 
 
@@ -116,17 +109,17 @@ class MonocleAudioServer:
         # the payload from this server using the repl channel.
         await self.client.start_notify(UART_TX_CHAR_UUID, self.handle_repl_tx)
         await self.client.start_notify(DATA_TX_CHAR_UUID, self.handle_data_tx)
+        
         repl = self.client.services.get_service(UART_SERVICE_UUID)
-        # data = self.client.services.get_service(DATA_SERVICE_UUID)
         repl_rx_char = repl.get_characteristic(UART_RX_CHAR_UUID)
-        # data_rx_char = data.get_characteristic(DATA_RX_CHAR_UUID)
+
 
         # This sleep is needed here to wait for resources to be available,
         # but in theory there should be some way to be notified when the
         # device is ready.
         await asyncio.sleep(5)
         await self.client.write_gatt_char(repl_rx_char, b"\x03\x01")
-        await self.send_cmd("print('hello world')", repl_rx_char)
+
         await self.send_cmd("import display, microphone, bluetooth, time", repl_rx_char)
         await self.send_cmd("initial_text = display.Text('hello world', 0, 0, display.WHITE)", repl_rx_char)
         await self.send_cmd("display.show(initial_text);", repl_rx_char)
@@ -139,8 +132,11 @@ class MonocleAudioServer:
         # hackathon, but this can be extended to using the touch buttons on the
         # device or to continually record and stream the audio bytes to the
         # server.
-        await self.send_cmd("print('start recording')\nmicrophone.record(seconds=5.0, sample_rate=8000, bit_depth=8)", repl_rx_char, 5)
-        await self.send_cmd("print('stop recording')", repl_rx_char)
+        await self.send_cmd("initial_text = display.Text('start recording', 0, 0, display.WHITE)", repl_rx_char)
+        await self.send_cmd("display.show(initial_text);", repl_rx_char)
+        await self.send_cmd("microphone.record(seconds=5.0, sample_rate=8000, bit_depth=8)", repl_rx_char, 5)
+        await self.send_cmd("initial_text = display.Text('stop recording', 0, 0, display.WHITE)", repl_rx_char)
+        # await self.send_cmd("print('stop recording')", repl_rx_char)
         # This code to send the audio bytes over the data channel is extremely
         # hacky. There are probably issues with the FPGA buffer being overflown
         # depending on which record/wait times are used. One potential fix for
@@ -163,19 +159,35 @@ while True:
 """, repl_rx_char)
         await asyncio.sleep(1)
 
-    def write_audio(self):
-            # Rewrite data length in the wav header with the correct length.
+    def write_audio(self,audio_output=AUDIO_OUTPUT_PATH):
+        # Rewrite data length in the wav header with the correct length.
         self.audio_buffer[4:8] = (len(self.audio_buffer) - 8).to_bytes(4, 'big')
         self.audio_buffer[40:44] = (len(self.audio_buffer) - 44).to_bytes(4, 'big')
-        with open(AUDIO_OUTPUT_PATH, "wb") as f:
+        with open(audio_output, "wb") as f:
             f.write(self.audio_buffer)
 
-    def transcribe_audio(self):
-        transcript = transcribe(AUDIO_OUTPUT_PATH)
+    def transcribe_audio(self, audio_input_file=AUDIO_OUTPUT_PATH) -> None:
+        transcript = transcribe(audio_input_file)
         print(f"TRANSCRIPTION: {transcript}")
         translation = translate(transcript)
         print(f"TRANSCRIPTION: {transcript}")
         print(f"TRANSLATION: {translation}")
+
+    def transcribe_audio(self, audio_input_file=AUDIO_OUTPUT_PATH) -> str:
+        transcript = transcribe(audio_input_file)
+        print(f"TRANSCRIPTION: {transcript}")
+        translation = translate(transcript)
+        print(f"TRANSCRIPTION: {transcript}")
+        print(f"TRANSLATION: {translation}")
+        return transcript
+
+    def transcribe_audio(self, audio_input_file=AUDIO_OUTPUT_PATH) -> str:
+        transcript = transcribe(audio_input_file)
+        print(f"TRANSCRIPTION: {transcript}")
+        translation = translate(transcript)
+        print(f"TRANSCRIPTION: {transcript}")
+        print(f"TRANSLATION: {translation}")
+        return translation
 
     # def process_audio(self):
 
@@ -184,8 +196,12 @@ while True:
 
 async def main():
     async with MonocleAudioServer() as audio_server:
+        
         await audio_server.send_payload()
-        audio_server.process_audio()
+        audio_server.write_audio()
+        data = audio_server.transcribe_audio()
+
+        # audio_server.process_audio()
 
 
 if __name__ == "__main__":
