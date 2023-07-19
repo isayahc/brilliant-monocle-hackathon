@@ -136,6 +136,8 @@ class MonocleAudioServer:
         await self.send_cmd("display.show(initial_text);", repl_rx_char)
         await self.send_cmd("microphone.record(seconds=5.0, sample_rate=8000, bit_depth=8)", repl_rx_char, 5)
         await self.send_cmd("initial_text = display.Text('stop recording', 0, 0, display.WHITE)", repl_rx_char)
+        await self.send_cmd("initial_text = display.Text('recording finished', 0, 0, display.WHITE)", repl_rx_char)
+        await self.send_cmd("display.show(initial_text);", repl_rx_char)
         # await self.send_cmd("print('stop recording')", repl_rx_char)
         # This code to send the audio bytes over the data channel is extremely
         # hacky. There are probably issues with the FPGA buffer being overflown
@@ -173,15 +175,8 @@ while True:
         print(f"TRANSCRIPTION: {transcript}")
         print(f"TRANSLATION: {translation}")
 
-    def transcribe_audio(self, audio_input_file=AUDIO_OUTPUT_PATH) -> str:
-        transcript = transcribe(audio_input_file)
-        print(f"TRANSCRIPTION: {transcript}")
-        translation = translate(transcript)
-        print(f"TRANSCRIPTION: {transcript}")
-        print(f"TRANSLATION: {translation}")
-        return transcript
 
-    def transcribe_audio(self, audio_input_file=AUDIO_OUTPUT_PATH) -> str:
+    def translate_audio(self, audio_input_file=AUDIO_OUTPUT_PATH) -> str:
         transcript = transcribe(audio_input_file)
         print(f"TRANSCRIPTION: {transcript}")
         translation = translate(transcript)
@@ -189,19 +184,19 @@ while True:
         print(f"TRANSLATION: {translation}")
         return translation
 
-    # def process_audio(self):
-
-
 
 
 async def main():
     async with MonocleAudioServer() as audio_server:
-        
-        await audio_server.send_payload()
-        audio_server.write_audio()
-        data = audio_server.transcribe_audio()
+        data = ""
+        while data != "end game":
+            await audio_server.send_payload()
+            audio_server.write_audio()
+            data = audio_server.transcribe_audio()
+            data = transcribe(AUDIO_OUTPUT_PATH,"medium")
+            print(data)
 
-        # audio_server.process_audio()
+        
 
 
 if __name__ == "__main__":
