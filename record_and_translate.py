@@ -8,6 +8,13 @@ from bleak.uuids import register_uuids
 import sys
 import whisper
 import openai
+# from elevenlabs import set_api_key, generate, play
+# from dotenv import load_dotenv
+# import os
+
+# load_dotenv()
+
+# set_api_key(os.getenv('ELEVENLABS_API_KEY'))
 
 
 UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
