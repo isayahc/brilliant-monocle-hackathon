@@ -17,6 +17,12 @@ DATA_RX_CHAR_UUID = "e5700002-7bac-429a-b4ce-57ff900f479d"
 DATA_TX_CHAR_UUID = "e5700003-7bac-429a-b4ce-57ff900f479d"
 
 
+# UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
+# UART_RX_CHAR_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
+# UART_TX_CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
+# DATA_TX_CHAR_UUID = "6e400004-b5a3-f393-e0a9-e50e24dcca9e"
+
+
 WAV_HEADER = (b"\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20"
               b"\x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x40\x1f\x00\x00"
               b"\x01\x00\x08\x00\x64\x61\x74\x61\x00\x00\x00\x00")
@@ -173,30 +179,28 @@ while True:
         await self.send_cmd("import touch, microphone, bluetooth, time", repl_rx_char)
         await self.send_cmd("recording = False", repl_rx_char)
         await self.send_cmd("""
-        def fn(arg):
-            global recording
-            if arg == touch.A:
-                print("Button A pressed! Starting recording...")
-                microphone.record(seconds=4.0, bit_depth=8, sample_rate=8000)
-                recording = True
-            if arg == touch.B and recording:
-                print("Button B pressed! Stopping recording...")
+    def fn(arg):
+        global recording
+        if arg == touch.A:
+            print("Button A pressed! Starting recording...")
+            microphone.record(seconds=4.0, bit_depth=8, sample_rate=8000)
+            recording = True
+        if arg == touch.B and recording:
+            print("Button B pressed! Stopping recording...")
+            while True:
+                chunk = microphone.read(100)
+                if chunk == None:
+                    time.sleep(1)
+                    break
                 while True:
-                    chunk = microphone.read(100)
-                    if chunk == None:
-                        time.sleep(1)
+                    try:
+                        bluetooth.send(chunk)
                         break
-                    while True:
-                        try:
-                            bluetooth.send(chunk)
-                            break
-                        except OSError:
-                            pass
-                recording = False
+                    except OSError:
+                        pass
+            recording = False
+    touch.callback(touch.BOTH, fn)
         """, repl_rx_char)
-
-        # Register the callback function
-        await self.send_cmd("touch.callback(touch.BOTH, fn)", repl_rx_char)
 
         await asyncio.sleep(1)
 
