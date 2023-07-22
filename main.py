@@ -62,7 +62,7 @@ if __name__ == "__main__":
     """
 
     prompt = PromptTemplate(
-        input_variables=["history", "input"], 
+        # input_variables=["history", "input"], 
         template=system_prompt
     )
 
