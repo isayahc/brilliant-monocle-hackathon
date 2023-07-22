@@ -173,28 +173,30 @@ while True:
         await self.send_cmd("import touch, microphone, bluetooth, time", repl_rx_char)
         await self.send_cmd("recording = False", repl_rx_char)
         await self.send_cmd("""
-    def fn(arg):
-        global recording
-        if arg == touch.A:
-            print("Button A pressed! Starting recording...")
-            microphone.record(seconds=4.0, bit_depth=8, sample_rate=8000)
-            recording = True
-        if arg == touch.B and recording:
-            print("Button B pressed! Stopping recording...")
-            while True:
-                chunk = microphone.read(100)
-                if chunk == None:
-                    time.sleep(1)
-                    break
+        def fn(arg):
+            global recording
+            if arg == touch.A:
+                print("Button A pressed! Starting recording...")
+                microphone.record(seconds=4.0, bit_depth=8, sample_rate=8000)
+                recording = True
+            if arg == touch.B and recording:
+                print("Button B pressed! Stopping recording...")
                 while True:
-                    try:
-                        bluetooth.send(chunk)
+                    chunk = microphone.read(100)
+                    if chunk == None:
+                        time.sleep(1)
                         break
-                    except OSError:
-                        pass
-            recording = False
-    touch.callback(touch.BOTH, fn)
+                    while True:
+                        try:
+                            bluetooth.send(chunk)
+                            break
+                        except OSError:
+                            pass
+                recording = False
         """, repl_rx_char)
+
+        # Register the callback function
+        await self.send_cmd("touch.callback(touch.BOTH, fn)", repl_rx_char)
 
         await asyncio.sleep(1)
 
