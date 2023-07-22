@@ -6,8 +6,6 @@ from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
 from bleak.uuids import register_uuids
 import sys
-import whisper
-import openai
 
 
 UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
@@ -39,16 +37,6 @@ def handle_disconnect(_: BleakClient):
     # cancelling all tasks effectively ends the program
     for task in asyncio.all_tasks():
         task.cancel()
-
-
-def transcribe(fp: str,model_size="base"):
-    model = whisper.load_model(model_size)
-    # Ideally we would just take in a tensor of the raw audio bytes rather than
-    # pass in a path.
-    result = model.transcribe(fp)
-    transcript = result["text"]
-    return transcript
-
 
 
 class MonocleAudioServer:
@@ -176,35 +164,19 @@ while True:
         with open(audio_output, "wb") as f:
             f.write(self.audio_buffer)
 
-    def transcribe_audio(self, audio_input_file=AUDIO_OUTPUT_PATH) -> None:
-        transcript = transcribe(audio_input_file)
-        print(f"TRANSCRIPTION: {transcript}")
-        translation = translate(transcript)
-        print(f"TRANSCRIPTION: {transcript}")
-        print(f"TRANSLATION: {translation}")
 
-
-    def translate_audio(self, audio_input_file=AUDIO_OUTPUT_PATH) -> str:
-        transcript = transcribe(audio_input_file)
-        print(f"TRANSCRIPTION: {transcript}")
-        translation = translate(transcript)
-        print(f"TRANSCRIPTION: {transcript}")
-        print(f"TRANSLATION: {translation}")
-        return translation
-
-
-
-async def main(model_size:str="medium"):
-    async with MonocleAudioServer() as audio_server:
-        data = ""
-        while data != "end game":
-            await audio_server.send_payload()
-            audio_server.write_audio()
-            data = transcribe(AUDIO_OUTPUT_PATH,model_size)
-            print(data)
+# async def main(model_size:str="medium"):
+#     async with MonocleAudioServer() as audio_server:
+#         data = ""
+#         while data != "end game":
+#             await audio_server.send_payload()
+#             audio_server.write_audio()
+#             data = transcribe(AUDIO_OUTPUT_PATH,model_size)
+#             print(data)
 
 
 
 if __name__ == "__main__":
-    model_size = "medium"
-    asyncio.run(main(model_size=model_size))
+    # model_size = "medium"
+    # asyncio.run(main(model_size=model_size))
+    pass
