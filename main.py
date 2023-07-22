@@ -6,6 +6,7 @@ from elevenlabs import set_api_key
 import openai
 
 import monocial_utils
+import utils
 
 # Load environemnt variables
 load_dotenv()
@@ -49,4 +50,5 @@ async def main():
             generate_speech(current_response)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    pass
+    # asyncio.run(main())
