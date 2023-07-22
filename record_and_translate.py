@@ -8,13 +8,6 @@ from bleak.uuids import register_uuids
 import sys
 import whisper
 import openai
-# from elevenlabs import set_api_key, generate, play
-# from dotenv import load_dotenv
-# import os
-
-# load_dotenv()
-
-# set_api_key(os.getenv('ELEVENLABS_API_KEY'))
 
 
 UART_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
@@ -31,8 +24,6 @@ WAV_HEADER = (b"\x52\x49\x46\x46\x00\x00\x00\x00\x57\x41\x56\x45\x66\x6d\x74\x20
               b"\x01\x00\x08\x00\x64\x61\x74\x61\x00\x00\x00\x00")
 
 AUDIO_OUTPUT_PATH = "/tmp/audio.wav"
-
-
 
 
 async def get_device():
@@ -58,16 +49,6 @@ def transcribe(fp: str,model_size="base"):
     transcript = result["text"]
     return transcript
 
-
-def translate(transcript: str):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a translator. Translate these sentences into English."},
-            {"role": "user", "content": transcript}
-        ]
-    )
-    return response['choices'][0]['message']['content']
 
 
 class MonocleAudioServer:
