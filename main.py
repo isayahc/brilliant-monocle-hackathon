@@ -26,25 +26,25 @@ async def generate_and_play_response(text):
     utils.generate_and_play_speech(response['response'])
     return response
 
-async def handle_conversation_turn(audio_server):
+async def handle_conversation_turn(audio_server, model_size):
     await audio_server.send_payload()
     audio_server.write_audio()
-    transcribed_text = utils.transcribe(monocial_utils.AUDIO_OUTPUT_PATH, "medium")
+    transcribed_text = utils.transcribe(monocial_utils.AUDIO_OUTPUT_PATH, model_size)
     return await generate_and_play_response(transcribed_text)
 
-async def conversation_loop(audio_server):
+async def conversation_loop(audio_server, model_size):
     convo = []
     initial_text = "Where am I"
     response = await generate_and_play_response(initial_text)
     convo.append(response)
     while response['input'] != "end game":
-        response = await handle_conversation_turn(audio_server)
+        response = await handle_conversation_turn(audio_server, model_size)
         convo.append(response)
     return convo
 
-async def main():
+async def main(model_size):
     async with monocial_utils.MonocleAudioServer() as audio_server:
-        convo = await conversation_loop(audio_server)
+        convo = await conversation_loop(audio_server, model_size)
 
 if __name__ == "__main__":
     llm = OpenAI(model_name='text-davinci-003', temperature=0, max_tokens=256)
@@ -73,4 +73,5 @@ if __name__ == "__main__":
         memory=ConversationKGMemory(llm=llm)
     )
 
-    asyncio.run(main())
+    model_size = "medium"
+    asyncio.run(main(model_size))
