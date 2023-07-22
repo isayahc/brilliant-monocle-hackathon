@@ -14,48 +14,37 @@ import monocial_utils
 import utils
 import llm_chain
 
-
-
 # Load environemnt variables
 load_dotenv()
 
-
 # Configuring API keys
 set_api_key(os.getenv('ELEVENLABS_API_KEY'))
-
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
+async def generate_and_play_response(text):
+    response = llm_chain.input_to_chain(conversation_with_kg, text)
+    utils.generate_and_play_speech(response['response'])
+    return response
+
+async def handle_conversation_turn(audio_server):
+    await audio_server.send_payload()
+    audio_server.write_audio()
+    transcribed_text = utils.transcribe(monocial_utils.AUDIO_OUTPUT_PATH, "medium")
+    return await generate_and_play_response(transcribed_text)
+
+async def conversation_loop(audio_server):
+    convo = []
+    initial_text = "Where am I"
+    response = await generate_and_play_response(initial_text)
+    convo.append(response)
+    while response['input'] != "end game":
+        response = await handle_conversation_turn(audio_server)
+        convo.append(response)
+    return convo
 
 async def main():
     async with monocial_utils.MonocleAudioServer() as audio_server:
-        convo = []
-        current_text = llm_chain.input_to_chain(conversation_with_kg, "Where am i ")
-
-        current_response = current_text['response']
-
-
-        utils.generate_and_play_speech(current_response)
-
-
-        print(current_text['response'])
-        convo.append(current_text)
-
-        while current_text != "end game":
-
-            await audio_server.send_payload()
-            audio_server.write_audio()
-
-            current_text = monocial_utils.transcribe(monocial_utils.AUDIO_OUTPUT_PATH,"medium")
-
-            print(current_text)
-            current_chain = llm_chain.input_to_chain(conversation_with_kg,current_text)
-            convo.append(current_chain)
-            
-            current_response = current_chain['response']
-
-            print(current_response)
-
-            utils.generate_and_play_speech(current_response)
+        convo = await conversation_loop(audio_server)
 
 if __name__ == "__main__":
     llm = OpenAI(model_name='text-davinci-003', temperature=0, max_tokens=256)
@@ -83,9 +72,5 @@ if __name__ == "__main__":
         prompt=prompt,
         memory=ConversationKGMemory(llm=llm)
     )
-
-    pass
-
-
 
     asyncio.run(main())

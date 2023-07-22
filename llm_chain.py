@@ -2,7 +2,6 @@
 from langchain.chains import ConversationChain
 
 
-
 def input_to_chain(ConvoChain: ConversationChain, text_input: str) -> ConversationChain:
     """
     Feed the input text into the conversation chain.
