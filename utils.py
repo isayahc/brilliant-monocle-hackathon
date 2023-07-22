@@ -5,8 +5,10 @@ import whisper
 from elevenlabs import generate, play
 
 
-def transcribe(fp: str,
-                model_size: str = "base") -> str:
+def transcribe(
+        fp: str,
+        model_size: str = "base"
+        ) -> str:
     """
     Transcribe audio from a file using a model from the Whisper ASR (Automatic Speech Recognition) system.
 
@@ -31,9 +33,11 @@ def transcribe(fp: str,
     return transcript
 
 
-def generate_and_play_speech(text: str, 
-                             voice: str="Bella", 
-                             model: str="eleven_monolingual_v1") -> None:
+def generate_and_play_speech(
+        text: str, 
+        voice: str="Bella", 
+        model: str="eleven_monolingual_v1"
+        ) -> None:
     """
     Generate speech audio from text and play it.
 
@@ -53,9 +57,11 @@ def generate_and_play_speech(text: str,
         print(f"Error playing audio: {e}")
 
 
-def generate_speech(text: str, 
-                    voice: str="Bella", 
-                    model: str="eleven_monolingual_v1") -> bytes:
+def generate_speech(
+        text: str, 
+        voice: str="Bella", 
+        model: str="eleven_monolingual_v1"
+        ) -> bytes:
     """
     Generate speech audio from text and return it.
 
@@ -65,9 +71,11 @@ def generate_speech(text: str,
     :return: The generated speech audio.
     """
     try:
-        audio = generate(text=text, 
-                         voice=voice, 
-                         model=model)
+        audio = generate(
+            text=text, 
+            voice=voice, 
+            model=model
+            )
     except Exception as e:
         print(f"Error generating audio: {e}")
         return b""
@@ -75,11 +83,14 @@ def generate_speech(text: str,
     return audio
 
 
-def do_something_with_generated_audio(generate_func, 
-                                      play_func, 
-                                      text, 
-                                      voice="Bella", 
-                                      model="eleven_monolingual_v1") -> None:
+def do_something_with_generated_audio(
+    generate_func, 
+    play_func, 
+    text, 
+    voice="Bella", 
+    model="eleven_monolingual_v1"
+) -> None:
+
     audio = generate_func(
         text=text,
         voice=voice,
@@ -89,11 +100,14 @@ def do_something_with_generated_audio(generate_func,
     play_func(audio)
 
 
-def save_bytes_to_wav(byte_data, 
-                      filename, 
-                      nchannels=1, 
-                      sampwidth=2, 
-                      framerate=44100):
+def save_bytes_to_wav(
+    byte_data: bytes, 
+    filename: str, 
+    nchannels: int = 1, 
+    sampwidth: int = 2, 
+    framerate: int = 44100
+) -> None:
+
     with wave.open(filename, 'wb') as wav_file:
         wav_file.setnchannels(nchannels)
         wav_file.setsampwidth(sampwidth)
