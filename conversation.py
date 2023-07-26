@@ -3,6 +3,9 @@ from langchain import OpenAI
 from langchain.prompts.prompt import PromptTemplate
 from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationKGMemory
+import llm_chain
+import utils
+import monocial_utils
 
 def create_conversation_chain():
     llm = OpenAI(model_name='text-davinci-003', temperature=0, max_tokens=256)
