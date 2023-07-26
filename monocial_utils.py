@@ -178,29 +178,47 @@ while True:
         # Set up the button press callbacks and start/stop recording
         await self.send_cmd("import touch, microphone, bluetooth, time", repl_rx_char)
         await self.send_cmd("recording = False", repl_rx_char)
-        await self.send_cmd("""
-            def fn(arg):
-                global recording
-                if arg == touch.A:
-                    print("Button A pressed! Starting recording...")
-                    microphone.record(seconds=4.0, bit_depth=8, sample_rate=8000)
-                    recording = True
-                if arg == touch.B and recording:
-                    print("Button B pressed! Stopping recording...")
+        chunks = [
+            """
+        def fn(arg):
+            global recording
+        """,
+            """
+            if arg == touch.A:
+                print("Button A pressed! Starting recording...")
+                microphone.record(seconds=4.0, bit_depth=8, sample_rate=8000)
+                recording = True
+        """,
+            """
+            if arg == touch.B and recording:
+                print("Button B pressed! Stopping recording...")
+        """,
+            """
+                while True:
+                    chunk = microphone.read(100)
+                    if chunk == None:
+                        time.sleep(1)
+                        break
+        """,
+            """
                     while True:
-                        chunk = microphone.read(100)
-                        if chunk == None:
-                            time.sleep(1)
+                        try:
+                            bluetooth.send(chunk)
                             break
-                        while True:
-                            try:
-                                bluetooth.send(chunk)
-                                break
-                            except OSError:
-                                pass
-                    recording = False
-            touch.callback(touch.BOTH, fn)
-                """, repl_rx_char)
+                        except OSError:
+                            pass
+        """,
+            """
+                recording = False
+        """,
+            """
+        touch.callback(touch.BOTH, fn)
+        """
+        ]
+
+        for chunk in chunks:
+            await self.send_cmd(chunk.strip(), repl_rx_char)
+
         
         await self.send_cmd("""
 def fn(arg):
