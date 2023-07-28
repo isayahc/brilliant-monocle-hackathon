@@ -1,8 +1,6 @@
 # conversation.py
-from langchain import OpenAI
-from langchain.prompts.prompt import PromptTemplate
+
 from langchain.chains import ConversationChain
-from langchain.chains.conversation.memory import ConversationKGMemory
 import utils
 import monocle_utils
 
