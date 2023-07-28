@@ -3,9 +3,19 @@ from langchain import OpenAI
 from langchain.prompts.prompt import PromptTemplate
 from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationKGMemory
-import llm_chain
 import utils
 import monocle_utils
+
+
+def input_to_chain(ConvoChain: ConversationChain, text_input: str) -> ConversationChain:
+    """
+    Feed the input text into the conversation chain.
+
+    :param ConvoChain: The conversation chain to use.
+    :param text_input: The input text.
+    :return: The updated conversation chain.
+    """
+    return ConvoChain(text_input)
 
 def create_conversation_chain():
     llm = OpenAI(model_name='text-davinci-003', temperature=0, max_tokens=256)
@@ -34,7 +44,7 @@ def create_conversation_chain():
     return conversation_with_kg
 
 async def generate_and_play_response(conversation_with_kg, text):
-    response = llm_chain.input_to_chain(conversation_with_kg, text)
+    response = input_to_chain(conversation_with_kg, text)
     utils.generate_and_play_speech(response['response'])
     return response
 
