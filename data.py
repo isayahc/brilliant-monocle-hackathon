@@ -10,7 +10,7 @@ from langchain import OpenAI
 from langchain.prompts.prompt import PromptTemplate
 from langchain.chains import ConversationChain
 
-import monocial_utils
+import monocle_utils
 import utils
 import llm_chain
 import config

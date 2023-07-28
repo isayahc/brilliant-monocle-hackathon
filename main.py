@@ -10,7 +10,7 @@ from langchain import OpenAI
 from langchain.prompts.prompt import PromptTemplate
 from langchain.chains import ConversationChain
 
-import monocial_utils
+import monocle_utils
 import utils
 import llm_chain
 import config
@@ -24,7 +24,7 @@ async def generate_and_play_response(text):
 async def handle_conversation_turn(audio_server, model_size):
     await audio_server.send_payload()
     audio_server.write_audio()
-    transcribed_text = utils.transcribe(monocial_utils.AUDIO_OUTPUT_PATH, model_size)
+    transcribed_text = utils.transcribe(monocle_utils.AUDIO_OUTPUT_PATH, model_size)
     return await generate_and_play_response(transcribed_text)
 
 async def conversation_loop(audio_server, model_size):
@@ -38,7 +38,7 @@ async def conversation_loop(audio_server, model_size):
     return convo
 
 async def main(model_size):
-    async with monocial_utils.MonocleAudioServer() as audio_server:
+    async with monocle_utils.MonocleAudioServer() as audio_server:
         convo = await conversation_loop(audio_server, model_size)
 
 if __name__ == "__main__":

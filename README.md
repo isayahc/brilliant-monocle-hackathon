@@ -27,7 +27,6 @@
 - [OpenAI Key](https://platform.openai.com/overview)
 - [ELEVENLABS key](https://elevenlabs.io/)
 
-
 #### Installation Steps
 
 ### Windows:
