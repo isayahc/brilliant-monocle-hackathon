@@ -6,35 +6,14 @@ from langchain.prompts.prompt import PromptTemplate
 from langchain.chains import ConversationChain
 
 import monocle_utils
-import utils
-import llm_chain
-# import config
+import conversation
 
 
-async def generate_and_play_response(text):
-    response = llm_chain.input_to_chain(conversation_with_kg, text)
-    utils.generate_and_play_speech(response['response'])
-    return response
+async def main(model_size:str,chain:ConversationChain):
 
-async def handle_conversation_turn(audio_server, model_size):
-    await audio_server.send_payload()
-    audio_server.write_audio()
-    transcribed_text = utils.transcribe(monocle_utils.AUDIO_OUTPUT_PATH, model_size)
-    return await generate_and_play_response(transcribed_text)
-
-async def conversation_loop(audio_server, model_size):
-    convo = []
-    initial_text = "Where am I"
-    response = await generate_and_play_response(initial_text)
-    convo.append(response)
-    while response['input'] != "end game":
-        response = await handle_conversation_turn(audio_server, model_size)
-        convo.append(response)
-    return convo
-
-async def main(model_size):
     async with monocle_utils.MonocleAudioServer() as audio_server:
-        convo = await conversation_loop(audio_server, model_size)
+
+        convo = await conversation.conversation_loop(audio_server,model_size,chain)
 
 if __name__ == "__main__":
     llm = OpenAI(model_name='text-davinci-003', temperature=0, max_tokens=256)
@@ -64,4 +43,4 @@ if __name__ == "__main__":
     )
 
     model_size = "medium"
-    asyncio.run(main(model_size))
+    asyncio.run(main(model_size,conversation_with_kg))
