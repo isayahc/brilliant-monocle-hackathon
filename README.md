@@ -29,6 +29,10 @@
 
 #### Installation Steps
 
+#### python version
+
+It is import to use at least python 3.10
+
 ### Windows:
 
 1. Open the Command Prompt or PowerShell by searching for "Command Prompt" or "PowerShell" in the Start menu.
