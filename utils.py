@@ -113,3 +113,23 @@ def save_bytes_to_wav(
         wav_file.setsampwidth(sampwidth)
         wav_file.setframerate(framerate)
         wav_file.writeframes(byte_data)
+
+
+def save_conversation_as_txt(convo):
+    """
+    Save the conversation history as a .txt file.
+
+    :param convo: The conversation history as a sequence of responses.
+    :type convo: List[dict]
+    """
+    # Create a filename for the .txt file (you can customize the filename as needed).
+    filename = "conversation_history.txt"
+
+    with open(filename, "w", encoding="utf-8") as file:
+        for response in convo:
+            input_text = response.get('input', '')
+            output_text = response.get('response', '')
+
+            # Write each input and output text to the .txt file.
+            file.write(f"User: {input_text}\n")
+            file.write(f"Bot: {output_text}\n\n")

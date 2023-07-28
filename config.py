@@ -18,3 +18,4 @@ def configure_environment():
 
     set_api_key(elevenlabs_api_key)
     openai.api_key = openai_api_key
+

@@ -9,6 +9,7 @@ import monocle_utils
 import conversation
 import utils
 
+from config import configure_environment
 
 
 async def main(model_size: str, chain: ConversationChain):
@@ -20,6 +21,7 @@ async def main(model_size: str, chain: ConversationChain):
         utils.save_conversation_as_txt(convo)
 
 if __name__ == "__main__":
+    configure_environment()
     llm = OpenAI(model_name='text-davinci-003', temperature=0, max_tokens=256)
 
     system_prompt = """
