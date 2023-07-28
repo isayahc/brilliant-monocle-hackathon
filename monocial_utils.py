@@ -237,6 +237,13 @@ touch.callback(touch.BOTH, fn)
             f.write(self.audio_buffer)
 
 
+    async def list_all_bluetooth_devices():
+        scanner = BleakScanner()
+        devices = await scanner.discover()
+        for device in devices:
+            print(f"Device: {device.name}, Address: {device.address}")
+
+
 
 
 
