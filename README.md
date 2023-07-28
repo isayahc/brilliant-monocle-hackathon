@@ -68,6 +68,11 @@
    pip install -r requirements.txt
    ```
 
+8. Run `main.py`:
+   ```
+   python main.py
+   ```
+
 ### Linux and macOS (Unix-based systems):
 
 1. Open a terminal window.
@@ -100,4 +105,9 @@
 7. Install the requirements using pip:
    ```
    pip install -r requirements.txt
+   ```
+
+8. Run `main.py`:
+   ```
+   python main.py
    ```
