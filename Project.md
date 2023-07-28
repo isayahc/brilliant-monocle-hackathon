@@ -66,3 +66,4 @@ Please refer to the readme for how to run this code.
 ## References
 
 [BridgeAR GitHub Repository](https://github.com/alinayu03/BridgeAR) - This project provided valuable assistance in configuring the audio recording from the monocle device.
+[brilliant-monocle-hackathon](https://github.com/isayahc/brilliant-monocle-hackathon) - Repository for this project
