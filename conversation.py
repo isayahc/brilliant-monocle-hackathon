@@ -43,18 +43,18 @@ def create_conversation_chain():
 
     return conversation_with_kg
 
-async def generate_and_play_response(conversation_with_kg, text):
+async def generate_and_play_response(conversation_with_kg:ConversationChain, text:str):
     response = input_to_chain(conversation_with_kg, text)
     utils.generate_and_play_speech(response['response'])
     return response
 
-async def handle_conversation_turn(audio_server, model_size, conversation_with_kg):
+async def handle_conversation_turn(audio_server:monocle_utils.MonocleAudioServer, model_size:str, conversation_with_kg:ConversationChain):
     await audio_server.send_payload()
     audio_server.write_audio()
     transcribed_text = utils.transcribe(monocle_utils.AUDIO_OUTPUT_PATH, model_size)
     return await generate_and_play_response(conversation_with_kg, transcribed_text)
 
-async def conversation_loop(audio_server, model_size, conversation_with_kg):
+async def conversation_loop(audio_server:monocle_utils.MonocleAudioServer, model_size:str, conversation_with_kg:ConversationChain):
     convo = []
     initial_text = "Where am I"
     response = await generate_and_play_response(conversation_with_kg, initial_text)
