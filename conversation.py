@@ -17,31 +17,6 @@ def input_to_chain(ConvoChain: ConversationChain, text_input: str) -> Conversati
     """
     return ConvoChain(text_input)
 
-def create_conversation_chain():
-    llm = OpenAI(model_name='text-davinci-003', temperature=0, max_tokens=256)
-
-    system_prompt = """
-    You are a game master for a Zork-style game. You must keep track of the user's game states, 
-    and provide a fun and challenging experience. Zork is a classic text-based adventure game, 
-    assist in generating text-based responses and managing the game's logic.
-
-    {history}
-
-    Conversation:
-    Human: {input}
-    AI:
-    """
-
-    prompt = PromptTemplate(template=system_prompt)
-
-    conversation_with_kg = ConversationChain(
-        llm=llm, 
-        verbose=True, 
-        prompt=prompt,
-        memory=ConversationKGMemory(llm=llm)
-    )
-
-    return conversation_with_kg
 
 async def generate_and_play_response(conversation_with_kg:ConversationChain, text:str):
     response = input_to_chain(conversation_with_kg, text)
