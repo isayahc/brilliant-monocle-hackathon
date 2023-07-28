@@ -51,7 +51,7 @@ async def handle_conversation_turn(audio_server:monocle_utils.MonocleAudioServer
     await audio_server.send_payload()
     audio_server.write_audio()
     transcribed_text = utils.transcribe(monocle_utils.AUDIO_OUTPUT_PATH, model_size)
-    return await generate_and_play_response(conversation_with_kg, transcribed_text)
+    return  generate_and_play_response(conversation_with_kg, transcribed_text)
 
 async def conversation_loop(audio_server:monocle_utils.MonocleAudioServer, model_size:str, conversation_with_kg:ConversationChain) -> list:
     """
@@ -68,7 +68,7 @@ async def conversation_loop(audio_server:monocle_utils.MonocleAudioServer, model
     """
     convo = []
     initial_text = "Where am I"
-    response = await generate_and_play_response(conversation_with_kg, initial_text)
+    response = generate_and_play_response(conversation_with_kg, initial_text)
     convo.append(response)
     while response['input'] != "end game":
         response = await handle_conversation_turn(audio_server, model_size, conversation_with_kg)

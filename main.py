@@ -7,13 +7,17 @@ from langchain.chains import ConversationChain
 
 import monocle_utils
 import conversation
+import utils
 
 
-async def main(model_size:str,chain:ConversationChain):
 
-    async with monocle_utils.MonocleAudioServer() as audio_server:
-
-        convo = await conversation.conversation_loop(audio_server,model_size,chain)
+async def main(model_size: str, chain: ConversationChain):
+    try:
+        async with monocle_utils.MonocleAudioServer() as audio_server:
+            convo = await conversation.conversation_loop(audio_server, model_size, chain)
+    except KeyboardInterrupt:
+        # If the program is interrupted (e.g., by pressing Ctrl+C), save the conversation history as a .txt file.
+        utils.save_conversation_as_txt(convo)
 
 if __name__ == "__main__":
     llm = OpenAI(model_name='text-davinci-003', temperature=0, max_tokens=256)
