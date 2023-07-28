@@ -1,9 +1,4 @@
-from dotenv import load_dotenv
-import os
 import asyncio
-
-from elevenlabs import set_api_key
-import openai
 
 from langchain.chains.conversation.memory import ConversationKGMemory
 from langchain import OpenAI
