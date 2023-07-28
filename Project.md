@@ -6,7 +6,7 @@
 
 #### Contact Info
 
-- Email: isayahculbertson@gmail.com
+- Email: [isayahculbertson@gmail.com](mailto:isayahculbertson@gmail.com)
 - LinkedIn: [Click here](https://www.linkedin.com/in/isayahc/)
 - GitHub: [Click here](https://github.com/isayahc)
 - Project Repo: [Click here](https://github.com/isayahc/brilliant-monocle-hackathon)
@@ -29,8 +29,7 @@ a large language model's (LLM) ability to interface with a user or users
 
 #### Mechanical
 
-- The glasses i used had too thick of a frame causing the clip to snap 🤦‍♂️. I used crazy glue to patch it up.
-
+- The glasses i used had too thick of a frame causing the clip to snap 🤦‍♂️. I used crazy glue to patch it up. In addition i made sure to use glasses with a skinny frame.
 
 ### Software
 
@@ -52,6 +51,6 @@ In the future i want:
 
 Please refer to the readme for how to run this code.
 
-## References 
+## References
 
 [BridgeAR GitHub Repository](https://github.com/alinayu03/BridgeAR) - This project provided valuable assistance in configuring the audio recording from the monocle device.
