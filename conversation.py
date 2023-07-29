@@ -53,7 +53,8 @@ async def handle_conversation_turn(audio_server:monocle_utils.MonocleAudioServer
     transcribed_text = utils.transcribe(monocle_utils.AUDIO_OUTPUT_PATH, model_size)
     return  generate_and_play_response(conversation_with_kg, transcribed_text)
 
-async def conversation_loop(audio_server:monocle_utils.MonocleAudioServer, model_size:str, conversation_with_kg:ConversationChain) -> list:
+
+async def conversation_loop(audio_server: monocle_utils.MonocleAudioServer, model_size: str, conversation_with_kg: ConversationChain) -> list:
     """
     Run the conversation loop, where the conversation chain interacts with the user in a back-and-forth manner.
 
@@ -67,10 +68,18 @@ async def conversation_loop(audio_server:monocle_utils.MonocleAudioServer, model
     :rtype: List[dict]
     """
     convo = []
-    initial_text = "Where am I"
-    response = generate_and_play_response(conversation_with_kg, initial_text)
-    convo.append(response)
-    while response['input'] != "end game":
-        response = await handle_conversation_turn(audio_server, model_size, conversation_with_kg)
+    try:
+        initial_text = "Where am I"
+        response = generate_and_play_response(conversation_with_kg, initial_text)
         convo.append(response)
-    return convo
+        while response['input'] != "end game":
+            response = await handle_conversation_turn(audio_server, model_size, conversation_with_kg)
+            convo.append(response)
+    except KeyboardInterrupt:
+        # If the conversation loop is interrupted, return the conversation history
+        print("\nConversation loop interrupted.")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+    finally:
+        return convo
+

@@ -15,7 +15,7 @@ from config import configure_environment
 async def main(model_size: str, chain: ConversationChain):
     try:
         async with monocle_utils.MonocleAudioServer() as audio_server:
-            convo = await conversation.conversation_loop(audio_server, model_size, chain)
+            convo =  await conversation.conversation_loop(audio_server, model_size, chain)
     except KeyboardInterrupt:
         # If the program is interrupted (e.g., by pressing Ctrl+C), save the conversation history as a .txt file.
         utils.save_conversation_as_txt(convo)
