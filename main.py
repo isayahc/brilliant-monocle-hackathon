@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 from langchain.chains.conversation.memory import ConversationKGMemory
 from langchain import OpenAI
@@ -15,14 +16,39 @@ from config import configure_environment
 async def main(model_size: str, chain: ConversationChain):
     try:
         async with monocle_utils.MonocleAudioServer() as audio_server:
-            convo =  await conversation.conversation_loop(audio_server, model_size, chain)
+            convo = await conversation.conversation_loop(audio_server, model_size, chain)
     except KeyboardInterrupt:
         # If the program is interrupted (e.g., by pressing Ctrl+C), save the conversation history as a .txt file.
         utils.save_conversation_as_txt(convo)
 
+        
+# Define a function to load the configuration
+def load_config(config_file_path):
+    try:
+        with open(config_file_path, 'r') as config_file:
+            return json.load(config_file)
+    except FileNotFoundError:
+        print(f"Configuration file {config_file_path} not found.")
+        return None
+    except json.JSONDecodeError:
+        print(f"Error decoding JSON from {config_file_path}.")
+        return None
+
+
 if __name__ == "__main__":
+    # Use the function to load the configuration
+    config = load_config("config.json")
+    if config is None:
+        exit(1)  # Exit if the configuration couldn't be loaded
+
+    # Use the parameters from the configuration in your script
+    model_size = config.get("model_size", "medium")  # Use a default value if the key is not present
+    model_name = config.get("model_name", "text-davinci-003")
+    temperature = config.get("temperature", 0)
+    max_tokens = config.get("max_tokens", 256)
+
     configure_environment()
-    llm = OpenAI(model_name='text-davinci-003', temperature=0, max_tokens=256)
+    llm = OpenAI(model_name=model_name, temperature=temperature, max_tokens=max_tokens)
 
     system_prompt = """
     You are a game master for a Zork-style game. You must keep track of the user's game states, 
@@ -48,5 +74,4 @@ if __name__ == "__main__":
         memory=ConversationKGMemory(llm=llm)
     )
 
-    model_size = "medium"
-    asyncio.run(main(model_size,conversation_with_kg))
+    asyncio.run(main(model_size, conversation_with_kg))
