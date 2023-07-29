@@ -12,16 +12,6 @@ import utils
 
 from config import configure_environment
 
-
-async def main(model_size: str, chain: ConversationChain, save_path):
-    try:
-        async with monocle_utils.MonocleAudioServer() as audio_server:
-            convo = await conversation.conversation_loop(audio_server, model_size, chain)
-    except KeyboardInterrupt:
-        # If the program is interrupted (e.g., by pressing Ctrl+C), save the conversation history as a .txt file.
-        utils.save_conversation_as_txt(convo)
-
-        
 # Define a function to load the configuration
 def load_config(config_file_path):
     try:
@@ -37,6 +27,7 @@ def load_config(config_file_path):
 
 if __name__ == "__main__":
     # Use the function to load the configuration
+    configure_environment()
     config = load_config("config.json")
     if config is None:
         exit(1)  # Exit if the configuration couldn't be loaded
@@ -46,9 +37,13 @@ if __name__ == "__main__":
     model_name = config.get("model_name", "text-davinci-003")
     temperature = config.get("temperature", 0)
     max_tokens = config.get("max_tokens", 256)
-    conversation_save_path = config.get("conversation_save_path", "conversation.json")
+    conversation_save_path = config.get("conversation_save_path", "")
 
-    configure_environment()
+
+
+
+
+    
     llm = OpenAI(model_name=model_name, temperature=temperature, max_tokens=max_tokens)
 
     system_prompt = """
@@ -68,11 +63,51 @@ if __name__ == "__main__":
         template=system_prompt
     )
 
-    conversation_with_kg = ConversationChain(
+    # conversation_with_kg = ConversationChain(
+    #     llm=llm, 
+    #     verbose=True, 
+    #     prompt=prompt,
+    #     memory=ConversationKGMemory(llm=llm)
+    # )
+
+    data = ""
+
+    if conversation_save_path:
+        # Load the dictionary from the JSON file
+        with open(conversation_save_path, 'r') as file:
+            loaded_data = json.load(file)
+
+        conversation_with_kg = ConversationChain(
+        llm=llm,
+        verbose=True,
+        # memory=retrieved_memory,
+        chat_memory=loaded_data
+        )
+        last_messages = conversation_with_kg.memory.chat_memory.messages[-1].text
+        print(last_messages)
+
+
+    else:
+        conversation_with_kg = ConversationChain(
         llm=llm, 
         verbose=True, 
         prompt=prompt,
         memory=ConversationKGMemory(llm=llm)
     )
+        
+        print(conversation_with_kg("where am i "))
 
-    asyncio.run(main(model_size, conversation_with_kg,save_path=conversation_save_path))
+
+
+    
+    while data != "end":
+        data = input()
+        f = conversation_with_kg(data)
+        print(f['response'])
+
+
+        # print(conversation_with_kg.)
+    # conversation.save_conversation(f)
+    dd = conversation_with_kg.memory.chat_memory.json()
+    with open(conversation_save_path, 'w') as file:
+        json.dump(dd, file)

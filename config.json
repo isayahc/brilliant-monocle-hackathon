@@ -2,5 +2,6 @@
     "model_size": "medium",
     "model_name": "text-davinci-003",
     "temperature": 0,
-    "max_tokens": 256
+    "max_tokens": 256,
+    "conversation_save_path" : "conversation.json"
 }

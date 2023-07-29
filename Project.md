@@ -56,7 +56,7 @@ In the future i want:
 - The ability for multiplayer. An important aspect of games is competition and cooperation. This could be multiple Monocles interacting on the same device, or each monocle connecting to a server on the cloud from a computer or phone.
 - I would like the monocle to display as much information pertaining to the game as possible. e.g, the current hand of a user. The current phase the user is in on thier turn, what items they can use. It would be cool for the monocle to display unicode.
 - Have a list of prompts that pertain to which game the group wants to play. Any house rules can be added to the original prompt if needed.
-
+- (May have been added ) The ability to save from a state
 ## Demo
 
 ## Aditional Notes
