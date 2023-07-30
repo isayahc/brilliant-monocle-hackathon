@@ -12,14 +12,15 @@ import utils
 
 from config import configure_environment
 import config_handler
+import chat_manager
 
 import sys
 
 
-async def main(model_size: str, chain: ConversationChain, save_path):
+async def main(model_size: str, chain: ConversationChain, save_path:str):
     try:
         async with monocle_utils.MonocleAudioServer() as audio_server:
-            convo = await conversation.conversation_loop(audio_server, model_size, chain)
+            convo = await conversation.conversation_loop(audio_server, model_size, chain,save_path)
     except KeyboardInterrupt:
         # If the program is interrupted (e.g., by pressing Ctrl+C), save the conversation history as a .txt file.
         utils.save_conversation_as_txt(convo)
@@ -30,7 +31,7 @@ async def main(model_size: str, chain: ConversationChain, save_path):
 if __name__ == "__main__":
     # Use the function to load the configuration
     configure_environment()
-    config_location = "config.json"
+    config_location = "example_config.json"
 
     if config_handler.config_exists(config_location):
         config = config_handler.load_config(config_location)
@@ -65,11 +66,15 @@ if __name__ == "__main__":
         template=system_prompt
     )
 
-    conversation_with_kg = ConversationChain(
-        llm=llm, 
-        verbose=True, 
-        prompt=prompt,
-        memory=ConversationKGMemory(llm=llm)
-    )
+    # conversation_with_kg = ConversationChain(
+    #     llm=llm, 
+    #     verbose=True, 
+    #     prompt=prompt,
+    #     memory=ConversationKGMemory(llm=llm)
+    # )
+
+    conversation_with_kg = chat_manager.load_conversation(conversation_save_path,llm,prompt)
+
+    
 
     asyncio.run(main(model_size, conversation_with_kg,save_path=conversation_save_path))

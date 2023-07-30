@@ -87,16 +87,35 @@ def extract_langchain_messages(
         ) -> list[ChatMessage]:
     return conversation_with_kg.chat_memory.messages
 
-def interact_and_save(conversation_with_kg, conversation_save_path):
+def initalize_conversation_loop(
+        conversation_with_kg: ConversationChain
+        ) -> ConversationChain:
+    """
+    Run the conversation loop, where the conversation chain interacts with the user in a back-and-forth manner.
+
+    :param audio_server: The MonocleAudioServer to receive audio input.
+    :type audio_server: monocle_utils.MonocleAudioServer
+    :param model_size: The size of the model used for transcription.
+    :type model_size: str
+    :param conversation_with_kg: The conversation chain to use.
+    :type conversation_with_kg: ConversationChain
+    :return: A list containing the history of the conversation as a sequence of responses.
+    :rtype: List[dict]
+    """
 
     chat_logs = conversation_with_kg.memory.chat_memory.messages
 
-    if not chat_logs: 
+    if not chat_logs:
+
         initial_input = "where am i?"
-        conversation_with_kg(initial_input)
+        return conversation_with_kg(initial_input)
     else:
-        last_message = conversation_with_kg.memory.chat_memory.messages[-1].text
-        print(last_message)
+
+        return conversation_with_kg
+
+def interact_and_save(conversation_with_kg, conversation_save_path):
+
+    conversation_with_kg = initalize_conversation_loop(conversation_with_kg)
 
     user_input = input()
     while user_input != "end":
