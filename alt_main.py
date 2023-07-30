@@ -14,8 +14,9 @@ import conversation
 import utils
 
 from config import configure_environment
+from pathlib import Path
 
-# Define a function to load the configuration
+# Function to load the configuration
 def load_config(config_file_path):
     try:
         with open(config_file_path, 'r') as config_file:
@@ -27,20 +28,12 @@ def load_config(config_file_path):
         print(f"Error decoding JSON from {config_file_path}.")
         return None
 
-
-if __name__ == "__main__":
-    # Use the function to load the configuration
-    configure_environment()
-    config = load_config("config.json")
-    if config is None:
-        exit(1)  # Exit if the configuration couldn't be loaded
-
-    # Use the parameters from the configuration in your script
-    model_size = config.get("model_size", "medium")  # Use a default value if the key is not present
+# Function to setup a conversation chain
+def setup_conversation_chain(conversation_save_path, config):
+    model_size = config.get("model_size", "medium")
     model_name = config.get("model_name", "text-davinci-003")
     temperature = config.get("temperature", 0)
     max_tokens = config.get("max_tokens", 256)
-    conversation_save_path = config.get("conversation_save_path", "")
 
     llm = OpenAI(model_name=model_name, temperature=temperature, max_tokens=max_tokens)
 
@@ -58,57 +51,69 @@ if __name__ == "__main__":
 
     prompt = PromptTemplate(
         input_variables=["history", "input"], 
+        # input_variables=[],
         template=system_prompt
     )
 
 
-    data = ""
-
-
-    if conversation_save_path:
-        # Load the dictionary from the JSON file
+    if Path(conversation_save_path).exists():
         with open(conversation_save_path, 'r') as file:
             loaded_data = json.load(file)
             loaded_data = json.loads(loaded_data)
 
         retrieved_memory = ConversationBufferMemory(chat_memory=loaded_data)
         conversation_with_kg = ConversationChain(
-        llm=llm,
-        verbose=True,
-        memory=retrieved_memory,
-        prompt=prompt
-
+            llm=llm,
+            verbose=True,
+            memory=retrieved_memory,
+            prompt=prompt
         )
 
-        # load messages into Conversation chain
-        message_list = []
-        for i in loaded_data['messages']:
-            temp = ChatMessage(text=i['text'],role=i['role'])
-            message_list.append(temp)
-
+        message_list = [ChatMessage(text=i['text'],role=i['role']) for i in loaded_data['messages']]
         conversation_with_kg.memory.chat_memory.messages = message_list
-
-
 
     else:
         conversation_with_kg = ConversationChain(
-        llm=llm, 
-        verbose=True, 
-        prompt=prompt,
-        memory=ConversationKGMemory(llm=llm)
-    )
+            llm=llm, 
+            verbose=True, 
+            prompt=prompt,
+            memory=ConversationKGMemory(llm=llm)
+        )
         
-        print(conversation_with_kg("where am i "))
+    return conversation_with_kg
 
+# Function to interact with the user
+def interact_and_save(conversation_with_kg, conversation_save_path):
 
-    
+    # initialize the conversation 
+
+    chat_logs = conversation_with_kg.memory.chat_memory.messages
+
+    if not chat_logs: 
+        initial_input = "where am i?"
+        conversation_with_kg(initial_input)
+    else:
+        last_message = conversation_with_kg.memory.chat_memory.messages[-1].text
+        print(last_message)
+
+    data = input()
     while data != "end":
+        response = conversation_with_kg(data)
+        print(response['response'])
         data = input()
-        f = conversation_with_kg(data)
-        print(f['response'])
 
 
-
-    dd = conversation_with_kg.memory.chat_memory.json()
     with open(conversation_save_path, 'w') as file:
-        json.dump(dd, file)
+        json.dump(conversation_with_kg.memory.chat_memory.json(), file)
+
+
+if __name__ == "__main__":
+    configure_environment()
+    config = load_config("config.json")
+
+    if config is None:
+        exit(1)
+
+    conversation_save_path = config.get("conversation_save_path", "")
+    conversation_with_kg = setup_conversation_chain(conversation_save_path, config)
+    interact_and_save(conversation_with_kg, conversation_save_path)
