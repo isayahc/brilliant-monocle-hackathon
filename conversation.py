@@ -2,15 +2,14 @@
 
 from langchain.chains import ConversationChain
 from langchain.schema import ChatMessage
+from langchain.chains.conversation.memory import ConversationBufferMemory
+from langchain.memory import chat_memory
+
+
 import utils
 import monocle_utils
 
 
-
-from langchain.memory import chat_memory
-
-# langchain.memory.
-from langchain.chains import  ConversationChain
 import json
 
 

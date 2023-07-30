@@ -8,10 +8,16 @@ from langchain.memory.chat_memory import ChatMemory
 from langchain.schema import ChatMessage
 from pathlib import Path
 
+# For typing
+from langchain.chains import ConversationChain
+from langchain.schema import ChatMessage
+from langchain.chains.conversation.memory import ConversationBufferMemory
+from langchain.memory import chat_memory
+
 from config import configure_environment
 import config_handler
 
-def setup_conversation_chain(conversation_save_path, config):
+def setup_conversation_chain(conversation_save_path:str, config):
     model_size = config.get("model_size", "medium")
     model_name = config.get("model_name", "text-davinci-003")
     temperature = config.get("temperature", 0)
@@ -87,6 +93,22 @@ def interact_and_save(conversation_with_kg, conversation_save_path):
         user_input = input()
 
     save_conversation(conversation_with_kg, conversation_save_path)
+
+def input_to_chain(
+        conversation_chain: ConversationChain, 
+        text_input: str
+        ) -> ConversationChain:
+    """
+    Feed the input text into the conversation chain.
+
+    :param conversation_chain: The conversation chain to use.
+    :type conversation_chain: ConversationChain
+    :param text_input: The input text to be processed by the conversation chain.
+    :type text_input: str
+    :return: The updated conversation chain after processing the input text.
+    :rtype: ConversationChain
+    """
+    return conversation_chain(text_input)
 
 
 
