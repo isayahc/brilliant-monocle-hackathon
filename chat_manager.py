@@ -8,6 +8,9 @@ from langchain.memory.chat_memory import ChatMemory
 from langchain.schema import ChatMessage
 from pathlib import Path
 
+from config import configure_environment
+import config_handler
+
 def setup_conversation_chain(conversation_save_path, config):
     model_size = config.get("model_size", "medium")
     model_name = config.get("model_name", "text-davinci-003")
@@ -30,49 +33,50 @@ def setup_conversation_chain(conversation_save_path, config):
 
     prompt = PromptTemplate(
         input_variables=["history", "input"], 
-        # input_variables=[],
         template=system_prompt
     )
-
-
-    if Path(conversation_save_path).exists():
-        with open(conversation_save_path, 'r') as file:
-            loaded_data = json.load(file)
-            loaded_data = json.loads(loaded_data)
-
-        retrieved_memory = ConversationBufferMemory(chat_memory=loaded_data)
-        conversation_with_kg = ConversationChain(
-            llm=llm,
-            verbose=True,
-            memory=retrieved_memory,
-            prompt=prompt
-        )
-
-        message_list = [ChatMessage(text=i['text'],role=i['role']) for i in loaded_data['messages']]
-        conversation_with_kg.memory.chat_memory.messages = message_list
-
-    else:
-        conversation_with_kg = ConversationChain(
-            llm=llm, 
-            verbose=True, 
-            prompt=prompt,
-            memory=ConversationKGMemory(llm=llm)
-        )
         
+    return llm, prompt
+
+def load_conversation(conversation_save_path, llm, prompt):
+    with open(conversation_save_path, 'r') as file:
+        loaded_data = json.load(file)
+        loaded_data = json.loads(loaded_data)
+
+    retrieved_memory = ConversationBufferMemory(chat_memory=loaded_data)
+    conversation_with_kg = ConversationChain(
+        llm=llm,
+        verbose=True,
+        memory=retrieved_memory,
+        prompt=prompt
+    )
+
+    message_list = [ChatMessage(text=i['text'],role=i['role']) for i in loaded_data['messages']]
+    conversation_with_kg.memory.chat_memory.messages = message_list
+
     return conversation_with_kg
 
-# Function to interact with the user
+def new_conversation(llm, prompt):
+    conversation_with_kg = ConversationChain(
+        llm=llm, 
+        verbose=True, 
+        prompt=prompt,
+        memory=ConversationKGMemory(llm=llm)
+    )
+    return conversation_with_kg
+
+def save_conversation(conversation_with_kg, conversation_save_path):
+    with open(conversation_save_path, 'w') as file:
+        json.dump(conversation_with_kg.memory.chat_memory.json(), file)
+
 def interact_and_save(conversation_with_kg, conversation_save_path):
 
-    # initialize the conversation 
     chat_logs = conversation_with_kg.memory.chat_memory.messages
 
     if not chat_logs: 
-        #if there is no chat history start from the begining
         initial_input = "where am i?"
         conversation_with_kg(initial_input)
     else:
-        #if there is a chat history start from there
         last_message = conversation_with_kg.memory.chat_memory.messages[-1].text
         print(last_message)
 
@@ -82,6 +86,28 @@ def interact_and_save(conversation_with_kg, conversation_save_path):
         print(response['response'])
         user_input = input()
 
+    save_conversation(conversation_with_kg, conversation_save_path)
 
-    with open(conversation_save_path, 'w') as file:
-        json.dump(conversation_with_kg.memory.chat_memory.json(), file)
+
+
+if __name__ == "__main__":
+    configure_environment()
+    config_location = "config.json"
+
+    if config_handler.config_exists(config_location):
+        config = config_handler.load_config(config_location)
+
+    if config is None:
+        exit(1)
+
+    conversation_save_path = config.get("conversation_save_path", "")
+
+    llm, prompt = setup_conversation_chain(conversation_save_path, config)
+    
+    if Path(conversation_save_path).exists():
+        conversation_with_kg = load_conversation(conversation_save_path, llm, prompt)
+    else:
+        conversation_with_kg = new_conversation(llm, prompt)
+
+    interact_and_save(conversation_with_kg, conversation_save_path)
+
