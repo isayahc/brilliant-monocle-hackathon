@@ -44,7 +44,11 @@ def setup_conversation_chain(conversation_save_path:str, config):
         
     return llm, prompt
 
-def load_conversation(conversation_save_path, llm, prompt):
+def load_conversation(
+        conversation_save_path, 
+        llm, 
+        prompt
+        ) -> ConversationChain:
     with open(conversation_save_path, 'r') as file:
         loaded_data = json.load(file)
         loaded_data = json.loads(loaded_data)
@@ -71,9 +75,17 @@ def new_conversation(llm, prompt):
     )
     return conversation_with_kg
 
-def save_conversation(conversation_with_kg, conversation_save_path):
+def save_conversation(
+        conversation_with_kg: ConversationChain, 
+        conversation_save_path:str
+        ) -> None:
     with open(conversation_save_path, 'w') as file:
         json.dump(conversation_with_kg.memory.chat_memory.json(), file)
+
+def extract_langchain_messages(
+        conversation_with_kg: ConversationChain
+        ) -> list[ChatMessage]:
+    return conversation_with_kg.chat_memory.messages
 
 def interact_and_save(conversation_with_kg, conversation_save_path):
 

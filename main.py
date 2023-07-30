@@ -11,6 +11,9 @@ import conversation
 import utils
 
 from config import configure_environment
+import config_handler
+
+import sys
 
 
 async def main(model_size: str, chain: ConversationChain, save_path):
@@ -22,24 +25,18 @@ async def main(model_size: str, chain: ConversationChain, save_path):
         utils.save_conversation_as_txt(convo)
 
         
-# Define a function to load the configuration
-def load_config(config_file_path):
-    try:
-        with open(config_file_path, 'r') as config_file:
-            return json.load(config_file)
-    except FileNotFoundError:
-        print(f"Configuration file {config_file_path} not found.")
-        return None
-    except json.JSONDecodeError:
-        print(f"Error decoding JSON from {config_file_path}.")
-        return None
 
 
 if __name__ == "__main__":
     # Use the function to load the configuration
-    config = load_config("config.json")
+    configure_environment()
+    config_location = "config.json"
+
+    if config_handler.config_exists(config_location):
+        config = config_handler.load_config(config_location)
+
     if config is None:
-        exit(1)  # Exit if the configuration couldn't be loaded
+        exit(1)
 
     # Use the parameters from the configuration in your script
     model_size = config.get("model_size", "medium")  # Use a default value if the key is not present
