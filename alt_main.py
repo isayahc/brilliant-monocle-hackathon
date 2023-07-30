@@ -5,6 +5,9 @@ from langchain.chains.conversation.memory import ConversationKGMemory
 from langchain import OpenAI
 from langchain.prompts.prompt import PromptTemplate
 from langchain.chains import ConversationChain
+from langchain.chains.conversation.memory import ConversationBufferMemory
+from langchain.memory.chat_memory import ChatMemory 
+from langchain.schema import ChatMessage
 
 import monocle_utils
 import conversation
@@ -39,11 +42,6 @@ if __name__ == "__main__":
     max_tokens = config.get("max_tokens", 256)
     conversation_save_path = config.get("conversation_save_path", "")
 
-
-
-
-
-    
     llm = OpenAI(model_name=model_name, temperature=temperature, max_tokens=max_tokens)
 
     system_prompt = """
@@ -63,28 +61,33 @@ if __name__ == "__main__":
         template=system_prompt
     )
 
-    # conversation_with_kg = ConversationChain(
-    #     llm=llm, 
-    #     verbose=True, 
-    #     prompt=prompt,
-    #     memory=ConversationKGMemory(llm=llm)
-    # )
 
     data = ""
+
 
     if conversation_save_path:
         # Load the dictionary from the JSON file
         with open(conversation_save_path, 'r') as file:
             loaded_data = json.load(file)
+            loaded_data = json.loads(loaded_data)
 
+        retrieved_memory = ConversationBufferMemory(chat_memory=loaded_data)
         conversation_with_kg = ConversationChain(
         llm=llm,
         verbose=True,
-        # memory=retrieved_memory,
-        chat_memory=loaded_data
+        memory=retrieved_memory,
+        prompt=prompt
+
         )
-        last_messages = conversation_with_kg.memory.chat_memory.messages[-1].text
-        print(last_messages)
+
+        # load messages into Conversation chain
+        message_list = []
+        for i in loaded_data['messages']:
+            temp = ChatMessage(text=i['text'],role=i['role'])
+            message_list.append(temp)
+
+        conversation_with_kg.memory.chat_memory.messages = message_list
+
 
 
     else:
@@ -98,7 +101,6 @@ if __name__ == "__main__":
         print(conversation_with_kg("where am i "))
 
 
-
     
     while data != "end":
         data = input()
@@ -106,8 +108,7 @@ if __name__ == "__main__":
         print(f['response'])
 
 
-        # print(conversation_with_kg.)
-    # conversation.save_conversation(f)
+
     dd = conversation_with_kg.memory.chat_memory.json()
     with open(conversation_save_path, 'w') as file:
         json.dump(dd, file)
