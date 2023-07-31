@@ -1,5 +1,5 @@
 import asyncio
-import json
+import sys
 
 from langchain.chains.conversation.memory import ConversationKGMemory
 from langchain import OpenAI
@@ -9,12 +9,12 @@ from langchain.chains import ConversationChain
 import monocle_utils
 import conversation
 import utils
+import chat_manager
 
 from config import configure_environment
 import config_handler
-import chat_manager
 
-import sys
+
 
 
 async def main(model_size: str, chain: ConversationChain, save_path:str):
@@ -66,12 +66,6 @@ if __name__ == "__main__":
         template=system_prompt
     )
 
-    # conversation_with_kg = ConversationChain(
-    #     llm=llm, 
-    #     verbose=True, 
-    #     prompt=prompt,
-    #     memory=ConversationKGMemory(llm=llm)
-    # )
 
     conversation_with_kg = chat_manager.load_conversation(conversation_save_path,llm,prompt)
 

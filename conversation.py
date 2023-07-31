@@ -1,23 +1,9 @@
-# conversation.py
-
 from langchain.chains import ConversationChain
-from langchain.schema import ChatMessage
-from langchain.chains.conversation.memory import ConversationBufferMemory
-from langchain.memory import chat_memory
-
 
 import utils
 import monocle_utils
 import chat_manager
-import transcribe_from_monocle
 
-import json
-# import logging
-
-
-# Configuring the logging
-# logging.basicConfig(level=logging.DEBUG,
-#                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 async def handle_conversation_turn(
         audio_server:monocle_utils.MonocleAudioServer, 
@@ -81,26 +67,24 @@ async def conversation_loop(
 
         initial_input = "where am i?"
         conversation_with_kg(initial_input)
-    else:
-        last_message = chat_logs[-1].text
-        print(last_message)
-        utils.generate_and_play_speech(last_message)
+    
+    chat_logs = conversation_with_kg.memory.chat_memory.messages
+    last_message = chat_logs[-1].text
 
-        # return conversation_with_kg
+    print(last_message)
+    utils.generate_and_play_speech(last_message)
 
 
-    # utils.generate_and_play_speech(initial_reponse)
-    # while response_chain['input'] != "end game":
     try:
-        user_input = input()
-        user_input = await transcribe_from_monocle.transcribe_text_from_monocle(audio_server, model_size)
+        # user_input = await transcribe_from_monocle.transcribe_text_from_monocle(audio_server, model_size)
+        user_input = await audio_server.transcribe_text_from_monocle(model_size)
         while user_input != "end":
             response = conversation_with_kg(user_input)
-            # print()
             current_response = response['response']
             print(current_response)
             utils.generate_and_play_speech(current_response)
-            user_input = await transcribe_from_monocle.transcribe_text_from_monocle(audio_server, model_size)
+            # user_input = await transcribe_from_monocle.transcribe_text_from_monocle(audio_server, model_size)
+            user_input = await audio_server.transcribe_text_from_monocle(model_size)
 
     except KeyboardInterrupt:
         # If the conversation loop is interrupted, return the conversation history
@@ -109,46 +93,5 @@ async def conversation_loop(
         print(f"An error occurred: {str(e)}")
     finally:
         
-        # logging.debug("saving to file")
         chat_manager.save_conversation(conversation_with_kg,save_path)
-
-# async def conversation_loop(
-#         audio_server: monocle_utils.MonocleAudioServer, 
-#         model_size: str, 
-#         conversation_with_kg: ConversationChain
-#         ) -> list:
-#     """
-#     Run the conversation loop, where the conversation chain interacts with the user in a back-and-forth manner.
-
-#     :param audio_server: The MonocleAudioServer to receive audio input.
-#     :type audio_server: monocle_utils.MonocleAudioServer
-#     :param model_size: The size of the model used for transcription.
-#     :type model_size: str
-#     :param conversation_with_kg: The conversation chain to use.
-#     :type conversation_with_kg: ConversationChain
-#     :return: A list containing the history of the conversation as a sequence of responses.
-#     :rtype: List[dict]
-#     """
-#     convo = []
-#     try:
-#         initial_text = "Where am I"
-#         # response = generate_and_play_response(conversation_with_kg, initial_text)
-#         response_chain = chat_manager.input_to_chain(conversation_with_kg, initial_text)
-#         response_text = response_chain['response']
-#         convo.append(response_text)
-#         while response_chain['input'] != "end game":
-#             response = await handle_conversation_turn(audio_server, model_size, conversation_with_kg)
-#             convo.append(response)
-#     except KeyboardInterrupt:
-#         # If the conversation loop is interrupted, return the conversation history
-#         print("\nConversation loop interrupted.")
-#     except Exception as e:
-#         print(f"An error occurred: {str(e)}")
-#     finally:
-
-#         chat_manager.save_conversation(conversation_with_kg)
-
-#         return convo
-
-
  

@@ -115,3 +115,10 @@ It is import to use at least python 3.10
    ```
    python main.py
    ```
+
+### Additional Notes
+
+There are a few additional notes:
+
+- To run the zork agent without the monocle, please run `alt_main.py`
+- To start from a new story, delete `conversation.json`, else to continue where i left off leave as is
