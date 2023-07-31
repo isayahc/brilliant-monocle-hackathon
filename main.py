@@ -7,7 +7,7 @@ from langchain.prompts.prompt import PromptTemplate
 from langchain.chains import ConversationChain
 
 import monocle_utils
-import conversation
+import monocle_conversation
 import utils
 import chat_manager
 
@@ -20,7 +20,7 @@ import config_handler
 async def main(model_size: str, chain: ConversationChain, save_path:str):
     try:
         async with monocle_utils.MonocleAudioServer() as audio_server:
-            convo = await conversation.conversation_loop(audio_server, model_size, chain,save_path)
+            convo = await monocle_conversation.conversation_loop(audio_server, model_size, chain,save_path)
     except KeyboardInterrupt:
         # If the program is interrupted (e.g., by pressing Ctrl+C), save the conversation history as a .txt file.
         utils.save_conversation_as_txt(convo)

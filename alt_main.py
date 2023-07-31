@@ -11,7 +11,7 @@ from langchain.memory.chat_memory import ChatMemory
 from langchain.schema import ChatMessage
 
 import monocle_utils
-import conversation
+import monocle_conversation
 import utils
 import chat_manager
 import config_handler
