@@ -13,6 +13,13 @@
 
 ## Introduction
 
+### Note
+
+This current project is an implementation of [Zork](https://en.wikipedia.org/wiki/Zork)
+
+---
+
+
 The purpose of this project is to demostrate a way to play table-top based games while using large language models (LLM) to:
 
 - Keep track of the rules
@@ -59,6 +66,7 @@ In the future i want:
 - (May have been added ) The ability to save from a state
 
 ## Demo
+
 [Demo Here](https://drive.google.com/file/d/1rjM-R5w28ec-MJetmtuZFpnQlQL7_-I4/view)
 
 ## Aditional Notes
@@ -69,3 +77,4 @@ Please refer to the readme for how to run this code.
 
 [BridgeAR GitHub Repository](https://github.com/alinayu03/BridgeAR) - This project provided valuable assistance in configuring the audio recording from the monocle device.
 [brilliant-monocle-hackathon](https://github.com/isayahc/brilliant-monocle-hackathon) - Repository for this project
+[Zork](https://en.wikipedia.org/wiki/Zork) - The game being implemented in this project
