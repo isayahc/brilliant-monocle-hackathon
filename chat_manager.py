@@ -49,11 +49,13 @@ def load_conversation(
         llm, 
         prompt
         ) -> ConversationChain:
+    
     with open(conversation_save_path, 'r') as file:
         loaded_data = json.load(file)
         loaded_data = json.loads(loaded_data)
 
     retrieved_memory = ConversationBufferMemory(chat_memory=loaded_data)
+
     conversation_with_kg = ConversationChain(
         llm=llm,
         verbose=True,
@@ -110,7 +112,6 @@ def initalize_conversation_loop(
 
         # initialize the chat
         initial_input = "where am i?"
-
         conversation_with_kg(initial_input)
 
 
@@ -127,11 +128,13 @@ def interact_and_save(
     inital_reponse =  conversation_with_kg.memory.chat_memory.messages[-1].text
     print(inital_reponse)
 
-    user_input = input("what would you like to do?")
+    prompt_user_reponse_string = "user:"
+
+    user_input = input(prompt_user_reponse_string)
     while user_input != "end":
         response = conversation_with_kg(user_input)['response']
         print(response)
-        user_input = input("what would you like to do?")
+        user_input = input(prompt_user_reponse_string)
 
     save_conversation(conversation_with_kg, conversation_save_path)
 
