@@ -8,17 +8,18 @@
   
 ### How
 
-- use chatGPT to record audio
+- use a speech-to-text model to turn the audio from the monocle into text
+- use LLM agent to generate a scenario for the user to react to 
 - only record when button is open
 - display gamestates on display
-- AI keeps track of all the information
+- Agent keeps track of all the information
   
 ### What
 
 - Feed information to chatGPT
 - displays information to the user(s)
 - sends info to chatgpt
-- make chatgpt determin the winner
+- make chatgpt determine the next game state
 
 ### How to run
 
