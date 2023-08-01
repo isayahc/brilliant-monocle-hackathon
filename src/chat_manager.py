@@ -49,11 +49,13 @@ def load_conversation(
         llm, 
         prompt
         ) -> ConversationChain:
+    
     with open(conversation_save_path, 'r') as file:
         loaded_data = json.load(file)
         loaded_data = json.loads(loaded_data)
 
     retrieved_memory = ConversationBufferMemory(chat_memory=loaded_data)
+
     conversation_with_kg = ConversationChain(
         llm=llm,
         verbose=True,
@@ -99,29 +101,40 @@ def initalize_conversation_loop(
     :type model_size: str
     :param conversation_with_kg: The conversation chain to use.
     :type conversation_with_kg: ConversationChain
-    :return: A list containing the history of the conversation as a sequence of responses.
-    :rtype: List[dict]
+    :return: ConversationChain
+    :rtype: ConversationChain
     """
 
     chat_logs = conversation_with_kg.memory.chat_memory.messages
 
+    # if chat_logs is empty then this is assumed to be a new ConversationChain object
     if not chat_logs:
 
+        # initialize the chat
         initial_input = "where am i?"
-        return conversation_with_kg(initial_input)
-    else:
+        conversation_with_kg(initial_input)
 
-        return conversation_with_kg
 
-def interact_and_save(conversation_with_kg, conversation_save_path):
+    return conversation_with_kg
+
+
+def interact_and_save(
+        conversation_with_kg:ConversationChain, 
+        conversation_save_path:str
+        ) -> None:
+
 
     conversation_with_kg = initalize_conversation_loop(conversation_with_kg)
+    inital_reponse =  conversation_with_kg.memory.chat_memory.messages[-1].text
+    print(inital_reponse)
 
-    user_input = input()
+    prompt_user_reponse_string = "user:"
+
+    user_input = input(prompt_user_reponse_string)
     while user_input != "end":
-        response = conversation_with_kg(user_input)
-        print(response['response'])
-        user_input = input()
+        response = conversation_with_kg(user_input)['response']
+        print(response)
+        user_input = input(prompt_user_reponse_string)
 
     save_conversation(conversation_with_kg, conversation_save_path)
 
