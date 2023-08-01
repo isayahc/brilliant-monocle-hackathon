@@ -48,7 +48,7 @@ This is targeted to people who want to encourage groups of people to interact an
 
 #### Mechanical
 
-- The glasses i used had too thick of a frame causing the clip to snap 🤦‍♂️. I used crazy glue to patch it up. In addition i made sure to use glasses with a skinny frame.
+- The glasses i used had too thick of a frame causing the clip to snap 🤦‍♂️. I used crazy glue to patch it up. In addition i made sure to use glasses with a slimmer frame.
 
 ### Software
 
