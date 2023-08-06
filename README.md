@@ -34,7 +34,7 @@
 
 It is import to use at least python 3.10
 
-### Windows:
+### Windows
 
 1. Open the Command Prompt or PowerShell by searching for "Command Prompt" or "PowerShell" in the Start menu.
 
@@ -78,7 +78,7 @@ It is import to use at least python 3.10
    python main.py
    ```
 
-### Linux and macOS (Unix-based systems):
+### Linux and macOS (Unix-based systems)
 
 1. Open a terminal window.
 
