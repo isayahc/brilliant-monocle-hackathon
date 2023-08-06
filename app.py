@@ -16,14 +16,19 @@ def main():
     if 'conversation' not in st.session_state:
         st.session_state.conversation = []
 
+    # Display the conversation history
+    for message in st.session_state.conversation:
+        sender, text = message.split(': ', 1)
+        if sender == "You":
+            st.markdown(f"<div style='text-align: left; color: blue;'>{sender}: {text}</div>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<div style='text-align: right; color: green;'>{sender}: {text}</div>", unsafe_allow_html=True)
+
     user_input = st.text_input("You: ")
     if user_input:
         st.session_state.conversation.append(f"You: {user_input}")
         bot_reply = bot_response(user_input)
         st.session_state.conversation.append(f"Bot: {bot_reply}")
-
-        # Display the conversation history
-        st.write('\n'.join(st.session_state.conversation))
 
 if __name__ == '__main__':
     main()
