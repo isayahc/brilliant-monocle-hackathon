@@ -160,7 +160,6 @@ pandas==2.0.3
 parso==0.8.3
 pathos==0.3.0
 pickleshare==0.7.5
-Pillow==9.5.0
 pox==0.3.2
 ppft==1.7.6.6
 prompt-toolkit==3.0.39
